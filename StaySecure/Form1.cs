@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net;
 
 namespace StaySecure
 {
@@ -15,6 +16,17 @@ namespace StaySecure
         public Form1()
         {
             InitializeComponent();
+            WebClient webClient = new WebClient();
+            string html = webClient.DownloadString("http://www.google.com");
+            HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
+            htmldoc.LoadHtml(html);
+
+            if(htmldoc.DocumentNode != null)
+            {
+                var nodes = htmldoc.DocumentNode.SelectNodes("//input");
+                
+            }
+
         }
     }
 }
