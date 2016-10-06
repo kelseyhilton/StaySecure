@@ -16,16 +16,8 @@ namespace StaySecure
         public Form1()
         {
             InitializeComponent();
-            WebClient webClient = new WebClient();
-            string html = webClient.DownloadString("http://www.google.com");
-            HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
-            htmldoc.LoadHtml(html);
-
-            if(htmldoc.DocumentNode != null)
-            {
-                var nodes = htmldoc.DocumentNode.SelectNodes("//input");
-                
-            }
+            Report report = new Report("");
+            report.GenerateReport("");
 
         }
     }
