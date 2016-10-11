@@ -1,0 +1,26 @@
+﻿--------------------------------------------------
+---- StaySecure Database Creation and Conversion
+-------------------------------------------------
+
+------------------------------------------------
+---- Report Tbl (10/9/16)
+------------------------------------------------
+ create table Report (
+	ReportId int identity(1,1) primary key,
+	CreatedDate datetime not null,
+	[Url] nvarchar(max) not null
+ );
+------------------------------------------------
+---- Vulnerabilities Tbl (10/9/16)
+------------------------------------------------
+
+create table Vulnerabilities (
+	VulnerabilityId int identity(1,1) primary key,
+	ReportId int foreign key references Report(ReportId),
+	[Description] nvarchar(max) null
+);
+
+------------------------------------------------
+---- 
+------------------------------------------------
+
