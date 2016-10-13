@@ -5,6 +5,7 @@ using OpenQA.Selenium.PhantomJS;
 using System.Windows.Forms;
 using System.IO;
 using OpenQA.Selenium.Interactions;
+using System.Net;
 
 namespace StaySecure
 {
@@ -18,6 +19,7 @@ namespace StaySecure
         public string Url { get; set; }
         public int NumVulnerabilitiesDetected { get; set; }
         public List<Vulnerability> Vulnerabilities { get; set; }
+        public string fileLocation { get; set; }
 
         private void OperateOnDb(string sqlCommandText) {
             var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -37,13 +39,57 @@ namespace StaySecure
         {
             HelperFunctions.ClearTxtFile("");//eventually you will want to remove the empty string
             //assumptions, that the html is correct and able to be parsed
-           // url = "https://google.com/";
-            List<string> listInputNames = new List<string>();
-            InjectQuery(url, listInputNames);
+
+            if (IsUserUrlValid(url)) {
+                //create report
+                InjectQuery(url);
+            }
+            else { return; }
+            //else indicate to user that their website has failed and ask them to enter a different url
         }
 
+        public bool IsUserUrlValid(string url)
+        {
+            //assumption: the user enters a valid url
+            url = FixUserAssumptions(url);
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            string fileLocation = directory.ToString();
+
+            Uri uriResult;
+            bool isValid = Uri.IsWellFormedUriString(url, UriKind.Absolute);
+            if (isValid)
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    isValid = false;
+                    HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                }
+                else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
+                }
+                response.Close();
+            }
+            else { HelperFunctions.WriteSingleLineToTxtFile("That url is not valid.", fileLocation); }      
+            return isValid;
+        }
+
+        public string FixUserAssumptions(string url)
+        {
+            url.Replace(" ", "");
+            if(url.IndexOf("www.") < 0) {
+                url = "http://www." + url;
+            }
+            else if (url.IndexOf("www.") > -1 && (url.IndexOf("https") < 0 || url.IndexOf("http") < 0)) {
+                url = "http://" + url;
+            }
+            return url;
+        }
         
-        public void InjectQuery(string url, List<string> inputNames1)
+        public void InjectQuery(string url)
         {
             HelperFunctions helper = new HelperFunctions();
             List<string> listInputFieldNames = new List<string>();
@@ -64,11 +110,7 @@ namespace StaySecure
             if (htmldoc.DocumentNode != null)
             {
                 var inputNodes = htmldoc.DocumentNode.SelectNodes("//input");
-                if (inputNodes == null)
-                {
-                    listInputFieldNames.Add("list of input nodes is null");
-                }
-                else
+                if (inputNodes != null)               
                 {
                     foreach (var node in inputNodes)
                     {
@@ -79,7 +121,10 @@ namespace StaySecure
                 }
             }
             ///--------------
-
+            if(listInputFieldNames.Count == 0)
+            {
+                HelperFunctions.WriteSingleLineToTxtFile("There are no visible inputs at that url.", fileLocation);
+            }
             foreach (var name in listInputFieldNames)
             {             
                 foreach (var input in invalidInputs)
@@ -131,12 +176,12 @@ namespace StaySecure
                 "insert",
                 "update",
                 "datetime",
-                "Arithmetic overflow", //this is css and is going to cause lots of false positives
+                "Arithmetic overflow",
                 "statement",
                // "invalid",
                 "column",
                 "conversion failed",
-                "table",
+                //"table", -table is going to show up in most html markup
                 "cast", 
                 "convert",
                 "fails",
