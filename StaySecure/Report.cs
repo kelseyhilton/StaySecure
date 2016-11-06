@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using System.IO;
 using OpenQA.Selenium.Interactions;
 using System.Net;
+using System.Xml;
+using System.Web;
 
 namespace StaySecure
 {
@@ -35,14 +37,32 @@ namespace StaySecure
             connection.Close();
         }
 
-        public void GenerateReport(string url)
+        public void GenerateReport(string origUrl)
         {
             HelperFunctions.ClearTxtFile("");//eventually you will want to remove the empty string
             //assumptions, that the html is correct and able to be parsed
-
-            if (IsUserUrlValid(url)) {
-                //create report
-                InjectQuery(url);
+            IWebDriver driver = new PhantomJSDriver();
+            if (IsUserUrlValid(origUrl)) {
+                //Test server request/response
+                bool isResponseValid = IsServerResponseOK(origUrl);
+                if (isResponseValid)
+                {
+                    //create report
+                    InjectQuery(origUrl, driver);
+                }
+                List<string> sitemapUrls = AnalyzeSiteMap(origUrl, driver);
+                int index = 0;
+                foreach(var url in sitemapUrls)
+                {
+                    if (IsUserUrlValid(url))
+                    {
+                        InjectQuery(url, driver);
+                    }
+                    index++;
+                    if (index == 3)
+                        break;
+                }
+                driver.Close();
             }
             else { return; }
             //else indicate to user that their website has failed and ask them to enter a different url
@@ -50,8 +70,9 @@ namespace StaySecure
 
         public bool IsUserUrlValid(string url)
         {
-            //assumption: the user enters a valid url
-            url = FixUserAssumptions(url);
+            // for now... assumption: the user enters a valid url
+            //url = FixUserAssumptions(url);
+
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
             string fileLocation = directory.ToString();
 
@@ -60,20 +81,74 @@ namespace StaySecure
             if (isValid)
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-                if (response.StatusCode == HttpStatusCode.BadRequest)
+                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                    {
+                        isValid = false;
+                        HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
+                    }
+                    response.Close();
+                }
+                catch(Exception e)
                 {
+                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.", fileLocation);
                     isValid = false;
-                    HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                    return isValid;
                 }
-                else if (response.StatusCode == HttpStatusCode.InternalServerError)
-                {
-                    HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
-                }
-                response.Close();
+                
             }
             else { HelperFunctions.WriteSingleLineToTxtFile("That url is not valid.", fileLocation); }      
+            return isValid;
+        }
+
+        public bool IsServerResponseOK(string url)
+        {
+            // for now... assumption: the user enters a valid url
+            //url = FixUserAssumptions(url);
+
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            string fileLocation = directory.ToString();
+
+            Uri uriResult;
+            bool isValid = Uri.IsWellFormedUriString(url, UriKind.Absolute);
+            if (isValid)
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                    {
+                        isValid = false;
+                        HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        isValid = false;
+                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
+                    }
+                    else {
+                        isValid = false;
+                        HelperFunctions.WriteSingleLineToTxtFile("That url is not valid.", fileLocation); }
+
+                    response.Close();
+                }
+                catch (Exception e)
+                {
+                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.", fileLocation);
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            
             return isValid;
         }
 
@@ -89,19 +164,20 @@ namespace StaySecure
             return url;
         }
         
-        public void InjectQuery(string url)
+        public void InjectQuery(string url, IWebDriver driver)
         {
             HelperFunctions helper = new HelperFunctions();
             List<string> listInputFieldNames = new List<string>();
-            List<string> invalidInputs = new List<string>() {
+            List<string> testCases = new List<string>() {
                 "'",//single quote
                 "''",//two single quotes
                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"//overflow
              };
 
-            IWebDriver driver = new PhantomJSDriver();
+            
             driver.Url = url;
             driver.Navigate();
+            
             string html = driver.PageSource;
             //parse inputs and come up with submit values            
             ///----------- I'm moving this all here because I don't want to open two instances of driver
@@ -127,12 +203,13 @@ namespace StaySecure
             }
             foreach (var name in listInputFieldNames)
             {             
-                foreach (var input in invalidInputs)
+                foreach (var input in testCases)
                 {
                     //check that the elements exist before the "sendkeys"
                     IWebElement element = driver.FindElement(By.Name(name));
                     if (element != null)
                     {
+                        HelperFunctions.WriteSingleLineToTxtFile("Element name" + element.GetAttribute("name"), fileLocation);
                         HelperFunctions.WriteSingleLineToTxtFile("Invalid input: " + input, "");
                         try
                         {
@@ -160,7 +237,59 @@ namespace StaySecure
                     }
                 }
             }
-            driver.Dispose();
+            //assuming a driver can be passed around, the dispose is being taken care of in the main function. that means I want to make it back there no matter what. 
+            //it may be safer to create local instances.
+            //driver.Dispose();
+        }
+
+        public List<string> AnalyzeSiteMap(string origUrl, IWebDriver driver)
+        {
+            List<string> sitemapUrls = new List<string>();
+            System.Text.StringBuilder sitemapUrl = new System.Text.StringBuilder(); //come up with a different initializer
+            bool validUrl = true;
+
+            //IWebDriver driver = new PhantomJSDriver();
+            //Check for valid url --> different function
+            //append /sitemap.xml to .com
+            if (origUrl.EndsWith(".com"))
+            {
+                sitemapUrl.Append(origUrl);
+                sitemapUrl.Append("/sitemap.xml");
+                //check if valid xml
+                if (IsUserUrlValid(origUrl))
+                {
+                    driver.Url = sitemapUrl.ToString();
+                    driver.Navigate();
+                    string xml = driver.PageSource;
+
+                    //does the server return a 404 or 500?
+                    bool validXml = true;
+                    //parse xml for urls
+                    XmlDocument xmlDoc = new XmlDocument();
+                    try
+                    {
+                        xmlDoc.LoadXml(xml);
+                    }catch { validXml = false; }
+
+                    if (validXml)
+                    {
+                        HelperFunctions.WriteSingleLineToTxtFile("The sitemap for " + origUrl + "is visible to the user. This is a vulnerability.", fileLocation);
+                        string xpath = "//*[contains(text(),'.com')]";//this is naive, but it has to be true...
+                        var nodes = xmlDoc.SelectNodes(xpath);
+
+                        HelperFunctions.WriteSingleLineToTxtFile("sitemap urls for " + origUrl, fileLocation);
+                        foreach (XmlNode childrenNode in nodes)
+                        {
+                            //create list of all urls listed in site map
+                            string nextUrl = childrenNode.InnerXml;
+                            sitemapUrls.Add(nextUrl);
+                            HelperFunctions.WriteSingleLineToTxtFile(nextUrl, fileLocation);//add url findings to report                           
+                        }
+                    }
+                }
+            }
+            driver.Close();
+            return sitemapUrls;
         }
 
         public void CheckForVulnerability(string html)

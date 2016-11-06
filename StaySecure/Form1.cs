@@ -45,5 +45,33 @@ namespace StaySecure
                 resultsDisplay.LoadFile(fileLocation, RichTextBoxStreamType.PlainText);
             }
         }
+
+        private void resultsDisplay_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //TODO: add warning for incorrect input
+            string url = urlInput.Text;
+            if (url == null || url == "")
+            {
+                url = "https://google.com/";//use google as the default web page. Also use google if there is an exception and the entered page cannot be used
+            }
+
+            Report report = new Report(url);
+            report.GenerateReport(url);
+
+            //write results summary to gui
+
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            string fileLocation = directory.ToString();
+
+            if (System.IO.File.Exists(fileLocation))
+            {
+                resultsDisplay.LoadFile(fileLocation, RichTextBoxStreamType.PlainText);
+            }
+        }
     }
 }
