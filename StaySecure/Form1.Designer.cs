@@ -45,8 +45,8 @@
             // resultsDisplay
             // 
             this.resultsDisplay.Location = new System.Drawing.Point(26, 132);
-            this.resultsDisplay.Multiline = false;
             this.resultsDisplay.Name = "resultsDisplay";
+            this.resultsDisplay.ReadOnly = true;
             this.resultsDisplay.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
             this.resultsDisplay.Size = new System.Drawing.Size(550, 450);
             this.resultsDisplay.TabIndex = 1;
@@ -69,7 +69,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 3;
-            this.button1.Text = "button1";
+            this.button1.Text = "Submit";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
