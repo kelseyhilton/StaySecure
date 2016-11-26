@@ -1,93 +1,106 @@
-List of keywords on page before input injection:
----
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
 
 Element name: q
-Invalid input: '
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: update
-Keyword found: null
-Keyword found: iis
+Input: validTest (valid)
 
 Element name: q
-Invalid input: ''
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: ;
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: update
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: --
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: input' or 1 = 1
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: input' or 1 = 1--
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-
-Element name: q
-Invalid input: &apos; or 1 = 1
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-Keyword found: microsoft
-
-Element name: q
-Invalid input: &apos; or 1 = 1--
-Keyword found: error
-Keyword found: select
-Keyword found: insert
-Keyword found: null
-Keyword found: iis
-Keyword found: microsoft
-
-Element name: q
-Invalid input: substring(@@version,1,1) = 5
-Keyword found: error
+Input: validTest@email.com (validEmail)
 Keyword found: server
-Keyword found: select
-Keyword found: insert
-Keyword found: null
+
+Element name: q
+Input: ' (invalid)
+Keyword found: update
+
+Element name: q
+Input: '' (invalid)
+
+Element name: q
+Input: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (invalid)
+
+Element name: q
+Input: ; (invalid)
+Keyword found: update
+
+Element name: q
+Input: -- (invalid)
+
+Element name: q
+Input: input' or 1 = 1 (invalid)
+Keyword found: statement
+Keyword found: microsoft
+
+Element name: q
+Input: input' or 1 = 1-- (invalid)
+Keyword found: statement
+Keyword found: microsoft
+
+Element name: q
+Input: &apos; or 1 = 1 (invalid)
 Keyword found: sql
-Keyword found: iis
+Keyword found: microsoft
+
+Element name: q
+Input: &apos; or 1 = 1-- (invalid)
+Keyword found: microsoft
+
+Element name: q
+Input: input'%20or%201=1 (invalid)
+Keyword found: statement
+Keyword found: sql
+
+Element name: q
+Input: input'%20or%201=1-- (invalid)
+Keyword found: statement
+Keyword found: sql
+
+Element name: q
+Input: &apos;%20or%201=1 (invalid)
+Keyword found: statement
+Keyword found: sql
+
+Element name: q
+Input: &apos;%20or%201=1-- (invalid)
+Keyword found: statement
+Keyword found: sql
+
+Element name: q
+Input: substring(@@version,1,1) = 5 (invalid)
+Keyword found: server
+Keyword found: sql
+Keyword found: microsoft
+
+testcase: validTest@email.com
+Keyword found: server
+testcase: '
+Keyword found: update
+testcase: ''
+testcase: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+testcase: ;
+Keyword found: update
+testcase: --
+testcase: input' or 1 = 1
+Keyword found: statement
+Keyword found: microsoft
+testcase: input' or 1 = 1--
+Keyword found: statement
+Keyword found: microsoft
+testcase: &apos; or 1 = 1
+Keyword found: sql
+Keyword found: microsoft
+testcase: &apos; or 1 = 1--
+Keyword found: microsoft
+testcase: input'%20or%201=1
+Keyword found: statement
+Keyword found: sql
+testcase: input'%20or%201=1--
+Keyword found: statement
+Keyword found: sql
+testcase: &apos;%20or%201=1
+Keyword found: statement
+Keyword found: sql
+testcase: &apos;%20or%201=1--
+Keyword found: statement
+Keyword found: sql
+testcase: substring(@@version,1,1) = 5
+Keyword found: server
+Keyword found: sql
 Keyword found: microsoft

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.IO;
+using System.Diagnostics;
 
 namespace StaySecure
 {
@@ -59,12 +60,12 @@ namespace StaySecure
             {
                 url = "https://google.com/";//use google as the default web page. Also use google if there is an exception and the entered page cannot be used
             }
-
+            Cursor.Current = Cursors.WaitCursor;
             Report report = new Report(url);
             report.GenerateReport(url);
 
             //write results summary to gui
-
+            Cursor.Current = Cursors.Default;
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
             string fileLocation = directory.ToString();
 
@@ -72,6 +73,20 @@ namespace StaySecure
             {
                 resultsDisplay.LoadFile(fileLocation, RichTextBoxStreamType.PlainText);
             }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            string fileLocation = directory.ToString();
+
+            if (System.IO.File.Exists(fileLocation))
+            {
+                Process.Start("notepad", fileLocation);
+            }
+
+           //else file does not exist warning. 
         }
     }
 }

@@ -18,7 +18,6 @@ namespace StaySecure
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
             string fileLocation = directory.ToString();
 
-            Uri uriResult;
             bool isValid = Uri.IsWellFormedUriString(url, UriKind.Absolute);
             if (isValid)
             {
@@ -30,12 +29,12 @@ namespace StaySecure
                     if (response.StatusCode == HttpStatusCode.BadRequest)
                     {
                         isValid = false;
-                        HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                        HelperFunctions.AddToErrorLog("Server returned Bad Request for: " + url);
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
                         isValid = false;
-                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
+                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error");
                     }
                     //else
                     //{
@@ -47,8 +46,8 @@ namespace StaySecure
                 }
                 catch (Exception e)
                 {
-                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.", fileLocation);
-                    HelperFunctions.WriteSingleLineToTxtFile("ERROR: " + e, fileLocation);
+                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.");
+                    HelperFunctions.AddToErrorLog("ERROR: " + e);
 
                     isValid = false;
                     return isValid;
@@ -71,13 +70,6 @@ namespace StaySecure
 
         public static bool IsUserUrlValid(string url)
         {
-            // for now... assumption: the user enters a valid url
-            //url = FixUserAssumptions(url);
-
-            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
-            string fileLocation = directory.ToString();
-
-            Uri uriResult;
             bool isValid = Uri.IsWellFormedUriString(url, UriKind.Absolute);
             if (isValid)
             {
@@ -89,23 +81,25 @@ namespace StaySecure
                     if (response.StatusCode == HttpStatusCode.BadRequest)
                     {
                         isValid = false;
-                        HelperFunctions.WriteSingleLineToTxtFile("Server returned Bad Request for: " + url, fileLocation);
+                        HelperFunctions.AddToErrorLog("Server returned Bad Request for: " + url);
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error", fileLocation);
+                        HelperFunctions.AddToErrorLog("Potential vulnerability at " + url + ". Returned Internal Server Error");
                     }
                     response.Close();
                 }
                 catch (Exception e)
                 {
-                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.", fileLocation);
+                    HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.");
+
+                    HelperFunctions.AddToErrorLog("Please make sure you are connected to the internet. Error: " + e);
                     isValid = false;
                     return isValid;
                 }
 
             }
-            else { HelperFunctions.WriteSingleLineToTxtFile("That url is not valid.", fileLocation); }
+            else { HelperFunctions.WriteSingleLineToTxtFile("That url is not valid."); }
             return isValid;
         }
 
