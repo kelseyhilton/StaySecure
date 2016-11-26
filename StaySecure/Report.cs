@@ -14,15 +14,11 @@ namespace StaySecure
     public class Report
     {
         public Report(string url) { }
-        public Guid Id { get; set; }
         public string Url { get; set; }
-        public int NumVulnerabilitiesDetected { get; set; }
-        public List<Vulnerability> Vulnerabilities { get; set; }
-        public string fileLocation { get; set; }
 
         public void GenerateReport(string origUrl)
         {
-            HelperFunctions.ClearTxtFile("");
+            HelperFunctions.ClearTxtFiles();
             //assumptions, that the html is correct and able to be parsed
             IWebDriver browser = new PhantomJSDriver();
             if (!WebService.IsUserUrlValid(origUrl)) {
@@ -48,7 +44,7 @@ namespace StaySecure
         public void InjectQuery(string url, IWebDriver browser)
         {
             HelperFunctions helper = new HelperFunctions();
-            List<string> listInputFieldNames = new List<string>();
+            List<Input> listInputFieldNames = new List<Input>();
             
             browser.Url = url;
             browser.Navigate();
@@ -68,17 +64,42 @@ namespace StaySecure
                     foreach (var node in inputNodes)
                     {
                         var name = node.Attributes["name"] != null ? node.Attributes["name"].Value : "";
-                        if (name != "" && (node.Attributes["type"] == null || node.Attributes["type"].Value == "" ||
-                            node.Attributes["type"].Value == "text" || node.Attributes["type"].Value == "password" ||
-                            node.Attributes["type"].Value == "search" || node.Attributes["type"].Value == "email"))//I really want this to display if type = text
-                            listInputFieldNames.Add(name);
+                        if (name != "")
+                        {
+                            if (node.Attributes["type"] == null || node.Attributes["type"].Value == "") {
+                                Input input = new Input(name, "");
+                                listInputFieldNames.Add(input);
+                            }
+                            if (node.Attributes["type"].Value == "text")
+                            {
+                                Input input = new Input(name, "text");
+                                listInputFieldNames.Add(input);
+                            }
+                            if (node.Attributes["type"].Value == "password")
+                            {
+                                Input input = new Input(name, "password");
+                                listInputFieldNames.Add(input);
+                            }
+
+                            if (node.Attributes["type"].Value == "search")
+                            {
+                                Input input = new Input(name, "search");
+                                listInputFieldNames.Add(input);
+                            }
+                            if (node.Attributes["type"].Value == "email")
+                            {
+                                Input input = new Input(name, "email");
+                                listInputFieldNames.Add(input);
+                            }
+                           
+                        }
                     }
                 }
             }
             ///--------------
             if (listInputFieldNames.Count == 0)
             {
-                HelperFunctions.WriteSingleLineToTxtFile("There are no visible inputs at that url.", fileLocation);
+                HelperFunctions.WriteSingleLineToTxtFile("There are no visible inputs at that url.");
             }
             foreach (var name in listInputFieldNames)
             {
@@ -87,19 +108,19 @@ namespace StaySecure
                     //check that the elements exist before the "sendkeys"
                     try
                     {
-                        IWebElement element = browser.FindElement(By.Name(name));
+                        IWebElement element = browser.FindElement(By.Name(name.Name));
                         if (element != null)
                         {
-                            HelperFunctions.WriteSingleLineToTxtFile("" , fileLocation);
-                            HelperFunctions.WriteSingleLineToTxtFile("Element name: " + element.GetAttribute("name"), fileLocation);
-                            HelperFunctions.WriteSingleLineToTxtFile("Invalid input: " + input, "");
+                            HelperFunctions.WriteSingleLineToTxtFile("");
+                            HelperFunctions.WriteSingleLineToTxtFile("Element name: " + element.GetAttribute("name"));
+                            HelperFunctions.WriteSingleLineToTxtFile("Input: " + input.Name);
                             try
                             {
                                 element.Clear();
                                 Actions actions = new Actions(browser);
                                 actions.MoveToElement(element).Click().Perform();
                                 
-                                element.SendKeys(input);//depending on the visibility of the input field, this will throw an exception:element is not selectable
+                                element.SendKeys(input.Name);//depending on the visibility of the input field, this will throw an exception:element is not selectable
                                 element.Submit();
                                 string pageAfterSubmit = browser.PageSource;
                                 //parse for vulnerabilities
@@ -110,18 +131,18 @@ namespace StaySecure
                                 string Id = element.GetAttribute("id");
                                 if (e.HResult == -2146233088)//element not visible to phantom js, run js to expose
                                 {
-                                    string jsInput = input;
-                                    if (input == "'")
+                                    string jsInput = input.Name;
+                                    if (input.Name == "'")
                                     {
                                         jsInput = "&#39;";
                                     }
-                                    if (input == "''")
+                                    if (input.Name == "''")
                                     {
                                         jsInput = "/'/'";
                                     }
                                     IJavaScriptExecutor js = browser as IJavaScriptExecutor;
                                     //js.ExecuteScript("document.getElementById('" + Id + "').setAttribute('value', '" + jsInput + "')", element);
-                                    js.ExecuteScript("document.getElementsByName('" + name + "')[0].setAttribute('value', '" + jsInput + "')", element);
+                                    js.ExecuteScript("document.getElementsByName('" + name.Name + "')[0].setAttribute('value', '" + jsInput + "')", element);
 
                                     try {
                                         element.Submit();
@@ -131,12 +152,12 @@ namespace StaySecure
                                     }
                                     catch (Exception exception)
                                     {
-                                        HelperFunctions.WriteSingleLineToTxtFile("ERROR: " + exception, "");
+                                        HelperFunctions.AddToErrorLog("ERROR: " + exception);
                                     }
                                 }
                                 else
                                 {
-                                    HelperFunctions.WriteSingleLineToTxtFile("ERROR: " + e, "");
+                                    HelperFunctions.AddToErrorLog("ERROR: " + e);
                                 }
                             }
                             //reset to original page
@@ -145,12 +166,12 @@ namespace StaySecure
                         }
                         else
                         {
-                            HelperFunctions.WriteSingleLineToTxtFile("No input fields found.", "");
+                            HelperFunctions.WriteSingleLineToTxtFile("No input fields found.");
                         }
                     }
                     catch (Exception e)
                     {
-                        HelperFunctions.WriteSingleLineToTxtFile("ERROR: " + e, "");
+                        HelperFunctions.AddToErrorLog("ERROR: " + e);
                     }
                 }
                 return;
@@ -169,7 +190,7 @@ namespace StaySecure
                 {
                     //save value to database
                     potentialVulnerability.Add(keyword);
-                    HelperFunctions.WriteSingleLineToTxtFile("Keyword found: " + keyword, "");
+                    HelperFunctions.WriteSingleLineToTxtFile("Keyword found: " + keyword);
                 }
             }
         }
@@ -180,7 +201,7 @@ namespace StaySecure
            
             var markup = html;
             List<string> existingKeywords = new List<string>();
-            HelperFunctions.WriteSingleLineToTxtFile("List of keywords on page before input injection:", fileLocation);
+            HelperFunctions.WriteSingleLineToTxtFile("List of keywords on page before input injection:");
 
             foreach (var keyword in ErrorKeywords)
             {
@@ -188,11 +209,11 @@ namespace StaySecure
                 {
                     //save value to database
                     existingKeywords.Add(keyword);
-                    HelperFunctions.WriteSingleLineToTxtFile(keyword, fileLocation);
+                    HelperFunctions.WriteSingleLineToTxtFile(keyword);
 
                 }
             }
-            HelperFunctions.WriteSingleLineToTxtFile("---", fileLocation);
+            HelperFunctions.WriteSingleLineToTxtFile("---");
             return existingKeywords;
         }
 
@@ -202,18 +223,20 @@ namespace StaySecure
                 "Arithmetic overflow", "statement", "column", "conversion failed",
                 "cast", "convert", "fails", "runtime", "null", "sql", "iis", "microsoft"
             };
-        List<string> validTestCases = new List<string>() {"valid"};
-        List<string> testCases = new List<string>() {
-                "'",//single quote
-                "''",//two single quotes
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",//overflow
-                ";",//syntax error
-                "--", //comment
-                "input' or 1 = 1", //boolean based bypass authentication
-                "input' or 1 = 1--",
-                "&apos; or 1 = 1",//hex-encoded boolean based
-                "&apos; or 1 = 1--",
-                "substring(@@version,1,1) = 5"//information phishing
+        
+        List<Input> testCases = new List<Input>() {
+               new Input( "validTest", "valid"),//simple string, valid for text input
+               new Input( "validTest@email.com", "validEmail"),//simple string, valid for text input
+               new Input( "'", "invalid"),//single quote
+               new Input("''", "invalid"),//two single quotes
+               new Input("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "invalid"),//overflow
+               new Input(";", "invalid"),//syntax error
+               new Input("--", "invalid"), //comment
+               new Input("input' or 1 = 1", "invalid"), //boolean based bypass authentication
+               new Input("input' or 1 = 1--", "invalid"),
+               new Input("&apos; or 1 = 1", "invalid"),//hex-encoded boolean based
+               new Input("&apos; or 1 = 1--", "invalid"),
+               new Input("substring(@@version,1,1) = 5", "invalid")//information phishing
              };
 
     }

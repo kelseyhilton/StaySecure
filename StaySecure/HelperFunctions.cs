@@ -13,26 +13,17 @@ namespace StaySecure
 {
     class HelperFunctions
     {
-        public static void WriteLinesToTxtFile(string[] lines, string fileLocation)
+        public static void ClearTxtFiles()
         {
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
-            fileLocation = directory.ToString();
+            string fileLocation = directory.ToString();
+
             if (File.Exists(fileLocation))
             {
-                using (System.IO.StreamWriter file = File.AppendText(fileLocation))
-                {
-                    file.WriteLine("--" + DateTime.Now.ToShortDateString() + "--");
-                    foreach (string line in lines)
-                    {
-                        file.WriteLine(line);
-                    }
-                }
+                File.WriteAllText(fileLocation, String.Empty);
             }
-       } 
 
-        public static void ClearTxtFile(string fileLocation)
-        {
-            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\ErrorLog.txt")));
             fileLocation = directory.ToString();
 
             if (File.Exists(fileLocation))
@@ -41,10 +32,10 @@ namespace StaySecure
             }
         }
 
-        public static void WriteSingleLineToTxtFile(string line, string fileLocation)
+        public static void WriteSingleLineToTxtFile(string line)
         {
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
-            fileLocation = directory.ToString();
+            string fileLocation = directory.ToString();
 
             if (File.Exists(fileLocation))
             {
@@ -54,7 +45,19 @@ namespace StaySecure
                 }
             }
         }
+        public static void AddToErrorLog(string errorText)
+        {
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\ErrorLog.txt")));
+            string fileLocation = directory.ToString();
 
+            if (File.Exists(fileLocation))
+            {
+                using (System.IO.StreamWriter file = File.AppendText(fileLocation))
+                {
+                    file.WriteLine(errorText);
+                }
+            }
+        }
 
         public static string FixUserAssumptions(string url)
         {
