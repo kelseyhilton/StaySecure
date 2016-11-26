@@ -3,43 +3,91 @@ List of keywords on page before input injection:
 Keyword found: error
 Keyword found: select
 Keyword found: insert
-Keyword found: datetime
-Keyword found: statement
 Keyword found: null
-Keyword found: sql
-Element name: search
+
+Element name: q
 Invalid input: '
 Keyword found: error
 Keyword found: select
 Keyword found: insert
-Keyword found: datetime
-Keyword found: statement
+Keyword found: update
 Keyword found: null
-Keyword found: sql
-Element name: search
+Keyword found: iis
+
+Element name: q
 Invalid input: ''
 Keyword found: error
 Keyword found: select
 Keyword found: insert
-Keyword found: datetime
-Keyword found: statement
 Keyword found: null
-Keyword found: sql
-Element name: search
+Keyword found: iis
+
+Element name: q
 Invalid input: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Keyword found: error
 Keyword found: select
 Keyword found: insert
-Keyword found: datetime
-Keyword found: statement
 Keyword found: null
-Keyword found: sql
-Element name: search
-Invalid input: trial
+Keyword found: iis
+
+Element name: q
+Invalid input: ;
 Keyword found: error
 Keyword found: select
 Keyword found: insert
-Keyword found: datetime
-Keyword found: statement
+Keyword found: update
+Keyword found: null
+Keyword found: iis
+
+Element name: q
+Invalid input: --
+Keyword found: error
+Keyword found: select
+Keyword found: insert
+Keyword found: null
+Keyword found: iis
+
+Element name: q
+Invalid input: input' or 1 = 1
+Keyword found: error
+Keyword found: select
+Keyword found: insert
+Keyword found: null
+Keyword found: iis
+
+Element name: q
+Invalid input: input' or 1 = 1--
+Keyword found: error
+Keyword found: select
+Keyword found: insert
+Keyword found: null
+Keyword found: iis
+
+Element name: q
+Invalid input: &apos; or 1 = 1
+Keyword found: error
+Keyword found: select
+Keyword found: insert
+Keyword found: null
+Keyword found: iis
+Keyword found: microsoft
+
+Element name: q
+Invalid input: &apos; or 1 = 1--
+Keyword found: error
+Keyword found: select
+Keyword found: insert
+Keyword found: null
+Keyword found: iis
+Keyword found: microsoft
+
+Element name: q
+Invalid input: substring(@@version,1,1) = 5
+Keyword found: error
+Keyword found: server
+Keyword found: select
+Keyword found: insert
 Keyword found: null
 Keyword found: sql
+Keyword found: iis
+Keyword found: microsoft

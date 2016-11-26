@@ -13,21 +13,6 @@ namespace StaySecure
 {
     class HelperFunctions
     {
-        public void OperateOnDb(string sqlCommandText)
-        {
-            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            System.Data.SqlClient.SqlConnection connection = new System.Data.SqlClient.SqlConnection(connectionString);
-
-            System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand();
-            cmd.CommandType = System.Data.CommandType.Text;
-            cmd.CommandText = sqlCommandText;
-            cmd.Connection = connection;
-
-            connection.Open();
-            cmd.ExecuteNonQuery();
-            connection.Close();
-        }
-
         public static void WriteLinesToTxtFile(string[] lines, string fileLocation)
         {
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
@@ -43,7 +28,7 @@ namespace StaySecure
                     }
                 }
             }
-        }
+       } 
 
         public static void ClearTxtFile(string fileLocation)
         {
@@ -65,7 +50,6 @@ namespace StaySecure
             {
                 using (System.IO.StreamWriter file = File.AppendText(fileLocation))
                 {
-                    //file.WriteLine("--" + DateTime.Now.ToShortDateString() + "--");
                     file.WriteLine(line);
                 }
             }

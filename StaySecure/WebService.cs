@@ -15,9 +15,6 @@ namespace StaySecure
     {
         public static bool IsServerResponseOK(string url)
         {
-            // for now... assumption: the user enters a valid url
-            //url = FixUserAssumptions(url);
-
             DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
             string fileLocation = directory.ToString();
 
