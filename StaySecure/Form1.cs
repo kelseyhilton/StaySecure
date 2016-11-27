@@ -78,7 +78,7 @@ namespace StaySecure
 
         private void button2_Click(object sender, EventArgs e)
         {
-            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\TestProgramOperations.txt")));
+            DirectoryInfo directory = new DirectoryInfo(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\ErrorLog.txt")));
             string fileLocation = directory.ToString();
 
             if (System.IO.File.Exists(fileLocation))

@@ -35,6 +35,13 @@ namespace StaySecure
             bool isResponseValid = WebService.IsServerResponseOK(origUrl);
             if (isResponseValid)
             {
+                HelperFunctions.WriteSingleLineToTxtFile("Date: " + DateTime.Now.ToShortDateString());
+                HelperFunctions.WriteSingleLineToTxtFile("Url: " + origUrl);
+                HelperFunctions.WriteSingleLineToTxtFile("");
+
+                HelperFunctions.AddToErrorLog("Date: " + DateTime.Now.ToShortDateString());
+                HelperFunctions.AddToErrorLog("Url: " + origUrl);
+                HelperFunctions.AddToErrorLog("[Start]");
                 //get list of pre-existing keywords
                 string originalPage = browser.PageSource;
                 //parse for vulnerabilities
@@ -43,6 +50,9 @@ namespace StaySecure
                 //create report
                 InjectQuery(origUrl, browser);
                 BypassAuthentication(origUrl, browser);
+                HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerabilities determined by your scan are listed above. If there are any threats labeled as [High] your application data" +
+                    " has been compromised and your site needs immediate attention. Threats labeled as [Medium] indicate that your site is exposing too much information about its construction and is" +
+                    " at risk for a clever attack. Click the View Details button for more information about the scan and its findings.");
             }
             browser.Dispose();
         }
@@ -57,10 +67,7 @@ namespace StaySecure
             browser.Navigate();
 
             string html = browser.PageSource;
-            
-            //get keywords in original html
-            //CheckForVulnerability(html);
-            
+
             //parse inputs and come up with submit values   
             HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
             htmldoc.LoadHtml(html);
@@ -114,7 +121,19 @@ namespace StaySecure
             if (listInputFieldNames.Count == 0)
             {
                 HelperFunctions.WriteSingleLineToTxtFile("There are no visible inputs at that url.");
+                HelperFunctions.AddToErrorLog("There are no visible inputs at " + url);
             }
+            else {
+                HelperFunctions.WriteSingleLineToTxtFile("Inputs on page:");
+                HelperFunctions.AddToErrorLog("Inputs on page:");
+                foreach (var name in listInputFieldNames)
+                {
+                    HelperFunctions.WriteSingleLineToTxtFile("Element Name: " + name.Name + ", Input type: " + name.Type);
+                    HelperFunctions.AddToErrorLog("Element Name: " + name.Name + ", Input type: " + name.Type);
+                }
+            }
+           
+
             foreach (var name in listInputFieldNames)
             {
                 foreach (var input in testCases)
@@ -125,9 +144,9 @@ namespace StaySecure
                         IWebElement element = browser.FindElement(By.Name(name.Name));
                         if (element != null)
                         {
-                            HelperFunctions.WriteSingleLineToTxtFile("");
-                            HelperFunctions.WriteSingleLineToTxtFile("Element name: " + element.GetAttribute("name"));
-                            HelperFunctions.WriteSingleLineToTxtFile("Input: " + input.Name + " (" + input.Type + ")");
+                            HelperFunctions.AddToErrorLog("");
+                            HelperFunctions.AddToErrorLog("Element name: " + element.GetAttribute("name"));
+                            HelperFunctions.AddToErrorLog("Input: " + input.Name + " (" + input.Type + ")");
                             try
                             {
                                 element.Clear();
@@ -144,6 +163,10 @@ namespace StaySecure
                                 }
                                 else
                                 {
+                                    if (pageAfterSubmit.IndexOf("Server Error") > -1)
+                                    {
+                                        HelperFunctions.AddToErrorLog("Server Error [Medium]");
+                                    }
                                     //parse for vulnerabilities
                                     CheckForVulnerability(pageAfterSubmit);
                                 }
@@ -170,6 +193,10 @@ namespace StaySecure
                                         element.Submit();
                                         string pageAfterSubmit = browser.PageSource;
                                         //parse for vulnerabilities
+                                        if (pageAfterSubmit.IndexOf("Server Error") > -1)
+                                        {
+                                            HelperFunctions.AddToErrorLog("Server Error [Medium]");
+                                        }
                                         CheckForVulnerability(pageAfterSubmit);
                                     }
                                     catch (Exception exception)
@@ -189,6 +216,7 @@ namespace StaySecure
                         else
                         {
                             HelperFunctions.WriteSingleLineToTxtFile("No input fields found.");
+                            HelperFunctions.AddToErrorLog("No input fields found.");
                         }
                     }
                     catch (Exception e)
@@ -196,14 +224,14 @@ namespace StaySecure
                         HelperFunctions.AddToErrorLog("ERROR: " + e);
                     }
                 }
-                return;
             }
+            return;
         }
         public void BypassAuthentication(string url, IWebDriver browser)
         {
             HelperFunctions.WriteSingleLineToTxtFile("");
             HelperFunctions.AddToErrorLog("");
-            HelperFunctions.AddToErrorLog("Insert test case into every field on page at the same time");
+            HelperFunctions.AddToErrorLog("[Description: Insert test case into every field on page at the same time]");
             HelperFunctions helper = new HelperFunctions();
             List<Input> listInputFieldNames = new List<Input>();
 
@@ -211,8 +239,11 @@ namespace StaySecure
             browser.Navigate();
 
             string html = browser.PageSource;
-            //get keywords in original html
 
+            if (html.IndexOf("Server Error") > -1)
+            {
+                HelperFunctions.WriteSingleLineToTxtFile("Server Error [Medium]");
+            }
             CheckForVulnerability(html);
             //parse inputs and come up with submit values   
             HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
@@ -267,10 +298,13 @@ namespace StaySecure
             if (listInputFieldNames.Count == 0)
             {
                 HelperFunctions.WriteSingleLineToTxtFile("There are no visible inputs at that url.");
+                HelperFunctions.AddToErrorLog("There are no visible inputs at that url.");
             }
 
             foreach (var input in testCases)
             {
+                browser.Url = url;
+                browser.Navigate();
                 //check that the elements exist before the "sendkeys"
                 try
                 {
@@ -304,9 +338,28 @@ namespace StaySecure
                             else
                             {
                                 //parse for vulnerabilities
-                                HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
+                                HelperFunctions.AddToErrorLog("testcase: " + input.Name);
+                                
+
+                                var uri = new Uri(url);
+                                string OriginalPath = uri.GetLeftPart(UriPartial.Path);
+
+                                uri = new Uri(browser.Url);
+                                string NavigatedToPath = uri.GetLeftPart(UriPartial.Path);
+                                if (OriginalPath != NavigatedToPath)
+                                {
+                                    HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
+                                    HelperFunctions.AddToErrorLog("Bypassed Authentication");
+                                    HelperFunctions.WriteSingleLineToTxtFile("Bypassed Authentication [High]");
+                                    HelperFunctions.WriteSingleLineToTxtFile("");
+                                }
+                                if (pageAfterSubmit.IndexOf("Server Error") > -1)
+                                {
+                                    HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
+                                    HelperFunctions.WriteSingleLineToTxtFile("Server Error [Medium]");
+                                    HelperFunctions.WriteSingleLineToTxtFile("");
+                                }
                                 CheckForVulnerability(pageAfterSubmit);
-                                HelperFunctions.WriteSingleLineToTxtFile("");
                             }
                         }
                         catch (Exception e)
@@ -327,18 +380,17 @@ namespace StaySecure
             HelperFunctions helper = new HelperFunctions();
 
             var markup = html;
-            List<string> potentialVulnerability = new List<string>();
+
             foreach (var keyword in ErrorKeywords)
             {
                 //only mark the keyword as suspicious if it does not show up in the same list as a valid input
                 if (markup.IndexOf(keyword) > -1 && !resultsFromValidInput.Contains(keyword))
                 {
-                    //save value to database
-                    potentialVulnerability.Add(keyword);
-                    HelperFunctions.WriteSingleLineToTxtFile("Keyword found: " + keyword);
+                    HelperFunctions.AddToErrorLog("Keyword found: " + keyword);
                 }
             }
         }
+
 
         public List<string> CheckForExistingKeywords(string html, bool isTest)
         {
