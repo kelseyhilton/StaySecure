@@ -34,13 +34,8 @@ namespace StaySecure
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
                         isValid = false;
-                        HelperFunctions.WriteSingleLineToTxtFile("Potential vulnerability at " + url + ". Returned Internal Server Error");
+                        HelperFunctions.AddToErrorLog("Potential vulnerability at " + url + ". Returned Internal Server Error");
                     }
-                    //else
-                    //{
-                    //    isValid = false;
-                    //    HelperFunctions.WriteSingleLineToTxtFile("The server response is not valid.", fileLocation);
-                    //}
 
                     response.Close();
                 }
@@ -93,13 +88,16 @@ namespace StaySecure
                 {
                     HelperFunctions.WriteSingleLineToTxtFile("Please make sure you are connected to the internet.");
 
-                    HelperFunctions.AddToErrorLog("Please make sure you are connected to the internet. Error: " + e);
+                    HelperFunctions.AddToErrorLog("[Poor Internet Connection] Error: " + e);
                     isValid = false;
                     return isValid;
                 }
 
             }
-            else { HelperFunctions.WriteSingleLineToTxtFile("That url is not valid."); }
+            else {
+                HelperFunctions.WriteSingleLineToTxtFile("That url is not valid. Please try again.");
+                HelperFunctions.WriteSingleLineToTxtFile("[Invalid Url]");
+            }
             return isValid;
         }
 

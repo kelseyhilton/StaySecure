@@ -1,106 +1,17 @@
+Date: 11/27/2016
+Url: http://exploitable-dev.us-west-2.elasticbeanstalk.com/Home/Authentication
 
-Element name: q
-Input: validTest (valid)
+Inputs on page:
+Element Name: Username, Input type: text
+Element Name: Password, Input type: text
 
-Element name: q
-Input: validTest@email.com (validEmail)
-Keyword found: server
-
-Element name: q
-Input: ' (invalid)
-Keyword found: update
-
-Element name: q
-Input: '' (invalid)
-
-Element name: q
-Input: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (invalid)
-
-Element name: q
-Input: ; (invalid)
-Keyword found: update
-
-Element name: q
-Input: -- (invalid)
-
-Element name: q
-Input: input' or 1 = 1 (invalid)
-Keyword found: statement
-Keyword found: microsoft
-
-Element name: q
-Input: input' or 1 = 1-- (invalid)
-Keyword found: statement
-Keyword found: microsoft
-
-Element name: q
-Input: &apos; or 1 = 1 (invalid)
-Keyword found: sql
-Keyword found: microsoft
-
-Element name: q
-Input: &apos; or 1 = 1-- (invalid)
-Keyword found: microsoft
-
-Element name: q
-Input: input'%20or%201=1 (invalid)
-Keyword found: statement
-Keyword found: sql
-
-Element name: q
-Input: input'%20or%201=1-- (invalid)
-Keyword found: statement
-Keyword found: sql
-
-Element name: q
-Input: &apos;%20or%201=1 (invalid)
-Keyword found: statement
-Keyword found: sql
-
-Element name: q
-Input: &apos;%20or%201=1-- (invalid)
-Keyword found: statement
-Keyword found: sql
-
-Element name: q
-Input: substring(@@version,1,1) = 5 (invalid)
-Keyword found: server
-Keyword found: sql
-Keyword found: microsoft
-
-testcase: validTest@email.com
-Keyword found: server
-testcase: '
-Keyword found: update
-testcase: ''
-testcase: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-testcase: ;
-Keyword found: update
-testcase: --
 testcase: input' or 1 = 1
-Keyword found: statement
-Keyword found: microsoft
-testcase: input' or 1 = 1--
-Keyword found: statement
-Keyword found: microsoft
-testcase: &apos; or 1 = 1
-Keyword found: sql
-Keyword found: microsoft
-testcase: &apos; or 1 = 1--
-Keyword found: microsoft
+Server Error [Medium]
+
 testcase: input'%20or%201=1
-Keyword found: statement
-Keyword found: sql
+Server Error [Medium]
+
 testcase: input'%20or%201=1--
-Keyword found: statement
-Keyword found: sql
-testcase: &apos;%20or%201=1
-Keyword found: statement
-Keyword found: sql
-testcase: &apos;%20or%201=1--
-Keyword found: statement
-Keyword found: sql
-testcase: substring(@@version,1,1) = 5
-Keyword found: server
-Keyword found: sql
-Keyword found: microsoft
+Server Error [Medium]
+
+Potential vulnerabilities determined by your scan are listed above. If there are any threats labeled as [High] your application data has been compromised and your site needs immediate attention. Threats labeled as [Medium] indicate that your site is exposing too much information about its construction and is at risk for a clever attack. Click the View Details button for more information about the scan and its findings.
