@@ -1,17 +1,7 @@
 Date: 11/27/2016
-Url: http://exploitable-dev.us-west-2.elasticbeanstalk.com/Home/Authentication
+Url: http://www.isaca.org/knowledge-center/documents/glossary/cybersecurity_fundamentals_glossary.pdf
 
-Inputs on page:
-Element Name: Username, Input type: text
-Element Name: Password, Input type: text
+There are no visible inputs at that url.
 
-testcase: input' or 1 = 1
-Server Error [Medium]
-
-testcase: input'%20or%201=1
-Server Error [Medium]
-
-testcase: input'%20or%201=1--
-Server Error [Medium]
-
+There are no visible inputs at that url.
 Potential vulnerabilities determined by your scan are listed above. If there are any threats labeled as [High] your application data has been compromised and your site needs immediate attention. Threats labeled as [Medium] indicate that your site is exposing too much information about its construction and is at risk for a clever attack. Click the View Details button for more information about the scan and its findings.

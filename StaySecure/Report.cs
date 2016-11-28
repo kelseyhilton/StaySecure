@@ -341,18 +341,18 @@ namespace StaySecure
                                 HelperFunctions.AddToErrorLog("testcase: " + input.Name);
                                 
 
-                                var uri = new Uri(url);
-                                string OriginalPath = uri.GetLeftPart(UriPartial.Path);
+                                //var uri = new Uri(url);
+                                //string OriginalPath = uri.GetLeftPart(UriPartial.Path);
 
-                                uri = new Uri(browser.Url);
-                                string NavigatedToPath = uri.GetLeftPart(UriPartial.Path);
-                                if (OriginalPath != NavigatedToPath)
-                                {
-                                    HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
-                                    HelperFunctions.AddToErrorLog("Bypassed Authentication");
-                                    HelperFunctions.WriteSingleLineToTxtFile("Bypassed Authentication [High]");
-                                    HelperFunctions.WriteSingleLineToTxtFile("");
-                                }
+                                //uri = new Uri(browser.Url);
+                                //string NavigatedToPath = uri.GetLeftPart(UriPartial.Path);
+                                //if (OriginalPath != NavigatedToPath)
+                                //{
+                                //    HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
+                                //    HelperFunctions.AddToErrorLog("Bypassed Authentication");
+                                //    HelperFunctions.WriteSingleLineToTxtFile("Bypassed Authentication [High]");
+                                //    HelperFunctions.WriteSingleLineToTxtFile("");
+                                //}
                                 if (pageAfterSubmit.IndexOf("Server Error") > -1)
                                 {
                                     HelperFunctions.WriteSingleLineToTxtFile("testcase: " + input.Name);
